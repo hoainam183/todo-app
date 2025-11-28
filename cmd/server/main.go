@@ -23,12 +23,14 @@ func main() {
 	}
 	log.Info().Msg("connected to database successfully")
 
-	// Store database instance in context if needed
-	_ = db
+	// Initialize repository and services
+	userRepo := repository.NewUserRepository(db)
+	authSvc := services.NewAuthService(userRepo)
 
 	router := chi.NewRouter()
 	v1Router := chi.NewRouter()
 
+	v1Router.Post("/auth/register", rest.RegisterHandler(authSvc))
 	router.Mount("/v1", v1Router)
 
 	server := &http.Server{
