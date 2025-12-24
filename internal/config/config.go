@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Port string
 	DB   *DBConfig
+	JWT  *JWTConfig
 }
 
 type DBConfig struct {
@@ -18,6 +19,10 @@ type DBConfig struct {
 	User     string
 	Password string
 	Database string
+}
+
+type JWTConfig struct {
+	Secret string
 }
 
 func LoadConfig() (*Config, error) {
@@ -31,8 +36,9 @@ func LoadConfig() (*Config, error) {
 	}
 
 	dbCfg := newDBConfig()
+	jwtCfg := newJWTConfig()
 
-	return &Config{Port: port, DB: dbCfg}, nil
+	return &Config{Port: port, DB: dbCfg, JWT: jwtCfg}, nil
 }
 
 func newDBConfig() *DBConfig {
@@ -43,6 +49,15 @@ func newDBConfig() *DBConfig {
 		Password: getEnv("DB_PASSWORD", ""),
 		Database: getEnv("DB_NAME", "todo_app"),
 	}
+}
+
+func newJWTConfig() *JWTConfig {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "your-secret-key-change-this-in-production"
+	}
+
+	return &JWTConfig{Secret: secret}
 }
 
 func getEnv(key, defaultValue string) string {

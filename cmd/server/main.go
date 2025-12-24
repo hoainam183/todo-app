@@ -29,12 +29,13 @@ func main() {
 
 	// Initialize repository and services
 	userRepo := repository.NewUserRepository(db)
-	authSvc := services.NewAuthService(userRepo)
+	authSvc := services.NewAuthService(userRepo, cfg.JWT.Secret)
 
 	router := chi.NewRouter()
 	v1Router := chi.NewRouter()
 
 	v1Router.Post("/auth/register", rest.RegisterHandler(authSvc))
+	v1Router.Post("/auth/login", rest.LoginHandler(authSvc))
 	router.Mount("/v1", v1Router)
 
 	server := &http.Server{
