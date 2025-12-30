@@ -8,3 +8,6 @@ CREATE TABLE IF NOT EXISTS todos (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_todos_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_todos_userId ON todos(user_id);
+CREATE INDEX idx_todos_id ON todos(id);
