@@ -4,9 +4,13 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog/log"
+
 	"github.com/hoainam183/todo-app/internal/config"
 	"github.com/hoainam183/todo-app/internal/database"
-	"github.com/rs/zerolog/log"
+	"github.com/hoainam183/todo-app/internal/handlers/rest"
+	"github.com/hoainam183/todo-app/internal/repository"
+	"github.com/hoainam183/todo-app/internal/services"
 )
 
 func main() {
