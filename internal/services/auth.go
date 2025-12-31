@@ -1,12 +1,12 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/hoainam183/todo-app/internal/models"
 	"github.com/hoainam183/todo-app/internal/repository"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/hoainam183/todo-app/pkg/common/apperrors"
 )
 
 type AuthService struct {
@@ -17,18 +17,18 @@ func NewAuthService(repo *repository.UserRepository) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) Register(username, password string) (*models.User, error) {
+func (s *AuthService) Register(username, password string) error {
 	if username == "" || password == "" {
-		return nil, errors.New("username and password are required")
+		return apperrors.ErrMissingField
 	}
 
 	if existing, err := s.repo.GetByUsername(username); err == nil && existing != nil && existing.ID != "" {
-		return nil, errors.New("username already exists")
+		return apperrors.ErrUserExists
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	u := &models.User{
@@ -38,10 +38,7 @@ func (s *AuthService) Register(username, password string) (*models.User, error) 
 	}
 
 	if err := s.repo.Create(u); err != nil {
-		return nil, err
+		return err
 	}
-
-	// Hide password before returning
-	u.Password = ""
-	return u, nil
+	return nil
 }

@@ -2,9 +2,11 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/hoainam183/todo-app/internal/services"
+	"github.com/hoainam183/todo-app/pkg/common/apperrors"
 	"github.com/hoainam183/todo-app/pkg/utils"
 )
 
@@ -22,15 +24,25 @@ func RegisterHandler(svc *services.AuthService) http.HandlerFunc {
 			return
 		}
 
-		user, err := svc.Register(req.Username, req.Password)
+		err := svc.Register(req.Username, req.Password)
 		if err != nil {
-			utils.ResponseWithError(w, http.StatusBadRequest, err.Error())
+			utils.ResponseWithError(w, getStatusCode(err), err.Error())
 			return
 		}
 
 		utils.ResponseWithJson(w, http.StatusCreated, map[string]string{
-			"id":       user.ID,
-			"username": user.Username,
+			"message": "User registered successfully",
 		})
+	}
+}
+
+func getStatusCode(err error) int {
+	switch {
+	case errors.Is(err, apperrors.ErrUserExists):
+		return http.StatusConflict
+	case errors.Is(err, apperrors.ErrMissingField):
+		return http.StatusBadRequest
+	default:
+		return http.StatusBadRequest
 	}
 }
